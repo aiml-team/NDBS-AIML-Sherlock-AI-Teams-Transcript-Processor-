@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sherlock AI Pro — SAP Discovery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:         #f5f7fa;
+      --bg2:        #ffffff;
+      --bg3:        #f0f3f8;
+      --border:     #e2e8f0;
+      --border2:    #cbd5e1;
+      --blue:       #2563eb;
+      --blue-lt:    #eff6ff;
+      --blue-mid:   #bfdbfe;
+      --blue-dark:  #1d4ed8;
+      --teal:       #0891b2;
+      --teal-lt:    #ecfeff;
+      --green:      #059669;
+      --green-lt:   #ecfdf5;
+      --green-mid:  #a7f3d0;
+      --amber:      #d97706;
+      --amber-lt:   #fffbeb;
+      --red:        #dc2626;
+      --red-lt:     #fef2f2;
+      --text:       #0f172a;
+      --text2:      #475569;
+      --text3:      #94a3b8;
+      --white:      #ffffff;
+      --shadow-sm:  0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      padding: 0 40px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo { display: flex; align-items: center; gap: 12px; }
+
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--blue), var(--teal));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+    }
+    .logo-mark svg { width: 18px; height: 18px; fill: white; }
+
+    .logo-text { display: flex; flex-direction: column; gap: 1px; }
+    .logo-name { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+    .logo-sub  { font-size: 10px; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+
+    .header-chips { display: flex; align-items: center; gap: 6px; }
+
+    .chip {
+      font-size: 11px; font-weight: 600;
+      padding: 4px 10px; border-radius: 20px; border: 1px solid;
+      font-family: 'JetBrains Mono', monospace; letter-spacing: 0.04em;
+    }
+    .chip-blue  { color: var(--blue);  border-color: var(--blue-mid); background: var(--blue-lt); }
+    .chip-teal  { color: var(--teal);  border-color: #a5f3fc;         background: var(--teal-lt); }
+    .chip-amber { color: var(--amber); border-color: #fcd34d;         background: var(--amber-lt); }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #1e40af 0%, #0891b2 60%, #0d9488 100%);
+      padding: 48px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .hero-inner { max-width: 820px; margin: 0 auto; position: relative; }
+
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.9); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 16px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .hero-title { font-size: 32px; font-weight: 800; color: #fff; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 10px; }
+    .hero-sub   { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.7; max-width: 520px; }
+
+    /* ── Stats row inside hero ── */
+    .stats-row {
+      max-width: 820px;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(255,255,255,0.15);
+      margin-top: 28px; padding-top: 24px; gap: 0;
+    }
+
+    .stat-item { display: flex; align-items: center; gap: 14px; padding-right: 24px; }
+    .stat-item + .stat-item { padding-left: 24px; border-left: 1px solid rgba(255,255,255,0.15); }
+
+    .stat-icon-wrap {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(255,255,255,0.15);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .stat-icon-wrap svg { width: 20px; height: 20px; fill: rgba(255,255,255,0.9); }
+
+    .stat-num  { font-size: 26px; font-weight: 800; color: #fff; line-height: 1; font-family: 'JetBrains Mono', monospace; }
+    .stat-desc { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 2px; }
+    .stat-sub  { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 1px; font-family: 'JetBrains Mono', monospace; }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      max-width: 820px; margin: 0 auto; width: 100%;
+      padding: 32px 40px 80px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .card-head {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg);
+    }
+
+    .step-num {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: var(--blue); color: white;
+      font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace; flex-shrink: 0;
+    }
+
+    .card-title { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.1em; }
+    .card-body  { padding: 22px; }
+
+    /* ── Drop zone ── */
+    .drop-zone {
+      border: 2px dashed var(--border2);
+      border-radius: 12px; padding: 42px 24px;
+      text-align: center; cursor: pointer;
+      transition: all 0.2s; background: var(--bg); position: relative;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--blue); background: var(--blue-lt);
+    }
+    .drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+
+    .drop-icon-wrap {
+      width: 54px; height: 54px; border-radius: 14px;
+      background: var(--white); border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm); margin: 0 auto 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .drop-icon-wrap svg { width: 24px; height: 24px; fill: var(--blue); }
+
+    .drop-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+    .drop-hint  { font-size: 12.5px; color: var(--text2); margin-bottom: 16px; }
+
+    .fmt-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+    .fmt-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 500; letter-spacing: 0.08em;
+      padding: 4px 10px; border-radius: 5px;
+      border: 1px solid var(--border); color: var(--text2); background: var(--white);
+    }
+
+    /* ── File list ── */
+    #file-list { margin-top: 12px; display: flex; flex-direction: column; gap: 7px; }
+
+    .file-row {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 10px 14px; border-radius: 10px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      animation: popIn 0.18s ease;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .file-row:hover { border-color: var(--border2); box-shadow: var(--shadow-sm); }
+
+    .file-ext {
+      width: 38px; height: 38px; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; font-weight: 700; letter-spacing: 0.05em;
+      flex-shrink: 0; border: 1px solid;
+    }
+    .ext-vtt  { background: var(--green-lt); color: var(--green);  border-color: var(--green-mid); }
+    .ext-docx { background: var(--blue-lt);  color: var(--blue);   border-color: var(--blue-mid);  }
+    .ext-txt  { background: var(--amber-lt); color: var(--amber);  border-color: #fcd34d; }
+    .ext-other{ background: var(--bg3);      color: var(--text2);  border-color: var(--border); }
+
+    .file-info { flex: 1; min-width: 0; }
+    .file-name { font-size: 13px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .file-size { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+
+    .rm-btn {
+      background: none; border: none; cursor: pointer; color: var(--text3);
+      padding: 5px; border-radius: 6px; transition: color 0.15s, background 0.15s;
+      flex-shrink: 0; line-height: 1; display: flex;
+    }
+    .rm-btn:hover { color: var(--red); background: var(--red-lt); }
+    .rm-btn svg { width: 13px; height: 13px; stroke: currentColor; display: block; }
+
+    /* ── Run button ── */
+    .run-btn {
+      width: 100%; padding: 15px 24px;
+      background: linear-gradient(135deg, var(--blue), var(--blue-dark));
+      color: white; border: none; border-radius: 10px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px; font-weight: 700; letter-spacing: 0.02em;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;
+      transition: all 0.2s; box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+    }
+    .run-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(37,99,235,0.45); }
+    .run-btn:active:not(:disabled){ transform: translateY(0); }
+    .run-btn:disabled { background: var(--bg3); color: var(--text3); cursor: not-allowed; box-shadow: none; }
+    .run-btn svg { width: 16px; height: 16px; fill: currentColor; }
+
+    /* ── Progress ── */
+    #progress-area { margin-top: 18px; display: none; }
+
+    .prog-card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px 20px;
+    }
+    .prog-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .prog-label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+    .prog-step  { font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+    .prog-pct   { font-size: 22px; font-weight: 800; color: var(--blue); font-family: 'JetBrains Mono', monospace; line-height: 1; }
+
+    .bar-track { background: var(--border); height: 7px; border-radius: 4px; overflow: hidden; }
+    .bar-fill  {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--blue), var(--teal));
+      border-radius: 4px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ── Result ── */
+    #result-box { margin-top: 14px; display: none; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-card {
+      background: var(--green-lt); border: 1px solid var(--green-mid);
+      border-radius: 12px; padding: 18px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .result-left { display: flex; align-items: center; gap: 13px; }
+    .result-icon {
+      width: 42px; height: 42px; border-radius: 11px;
+      background: var(--green); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; box-shadow: 0 3px 10px rgba(5,150,105,0.35);
+    }
+    .result-icon svg { width: 22px; height: 22px; stroke: white; fill: none; }
+    .result-title    { font-size: 14px; font-weight: 700; color: var(--green); margin-bottom: 2px; }
+    .result-filename { font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+
+    .dl-btn {
+      background: var(--green); color: white; border: none;
+      padding: 11px 20px; font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px; font-weight: 700; cursor: pointer; border-radius: 9px;
+      display: flex; align-items: center; gap: 7px;
+      transition: all 0.15s; white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(5,150,105,0.3); flex-shrink: 0;
+    }
+    .dl-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .dl-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
+    /* ── Error ── */
+    #error-box {
+      margin-top: 12px; display: none;
+      background: var(--red-lt); border: 1px solid #fecaca;
+      border-radius: 10px; padding: 13px 16px;
+      font-size: 12px; color: var(--red);
+      font-family: 'JetBrains Mono', monospace;
+      animation: fadeUp 0.2s ease;
+    }
+
+    /* ── Workstreams ── */
+    .ws-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+
+    .ws-tile {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 9px; padding: 11px 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      text-align: center; transition: all 0.15s; cursor: default;
+    }
+    .ws-tile:hover {
+      border-color: var(--blue-mid); background: var(--blue-lt);
+      transform: translateY(-1px); box-shadow: var(--shadow-sm);
+    }
+    .ws-num {
+      font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 500;
+      color: var(--blue); background: var(--blue-lt);
+      border: 1px solid var(--blue-mid); padding: 2px 7px; border-radius: 4px;
+    }
+    .ws-label { font-size: 10px; font-weight: 600; color: var(--text2); line-height: 1.3; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--white); border-top: 1px solid var(--border);
+      padding: 14px 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-copy { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+    .footer-chips { display: flex; gap: 6px; }
+
+    @media (max-width: 640px) {
+      header { padding: 0 20px; }
+      .hero  { padding: 36px 20px; }
+      main   { padding: 24px 20px 60px; }
+      .stats-row { grid-template-columns: 1fr; gap: 14px; }
+      .stat-item + .stat-item { padding-left: 0; border-left: none; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 14px; }
+      .ws-grid { grid-template-columns: repeat(3, 1fr); }
+      footer { padding: 14px 20px; flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 18 18">
+        <rect x="1" y="1" width="7" height="7" rx="1.5"/>
+        <rect x="10" y="1" width="7" height="7" rx="1.5" opacity="0.7"/>
+        <rect x="1" y="10" width="7" height="7" rx="1.5" opacity="0.7"/>
+        <rect x="10" y="10" width="7" height="7" rx="1.5" opacity="0.4"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <div class="logo-name">Sherlock AI Pro</div>
+      <div class="logo-sub">SAP Customer Discovery</div>
+    </div>
+  </div>
+  <div class="header-chips">
+    <span class="chip chip-blue">Azure GPT-4o</span>
+    <span class="chip chip-teal">FastAPI</span>
+    <span class="chip chip-amber">LangChain</span>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">
+      <svg width="8" height="8" viewBox="0 0 8 8" fill="currentColor"><circle cx="4" cy="4" r="4"/></svg>
+      AI-Powered Transcript Analysis
+    </div>
+    <h1 class="hero-title">Turn discovery calls into<br/>professional SAP profiles</h1>
+    <p class="hero-sub">Upload your call transcripts and AI will extract, analyze, and organize everything across all 15 SAP workstreams into a ready-to-share Word document.</p>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-icon-wrap">
+          <svg viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm2 0a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm4-1a1 1 0 10-2 0v4a1 1 0 102 0V8z"/></svg>
+        </div>
+        <div>
+          <div class="stat-num">73</div>
+          <div class="stat-desc">Fields extracted</div>
+          <div class="stat-sub">name, revenue, KPIs, pain points…</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon-wrap">
+          <svg viewBox="0 0 20 20"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zm0 8a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zm6-6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zm0 8a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        </div>
+        <div>
+          <div class="stat-num">15</div>
+          <div class="stat-desc">SAP workstreams</div>
+          <div class="stat-sub">S2P, L2C, R2R, H2R and more…</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon-wrap">
+          <svg viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1H8a3 3 0 00-3 3v1.5a1.5 1.5 0 01-3 0V6z"/><path d="M6 12a2 2 0 012-2h8a2 2 0 012 2v2a2 2 0 01-2 2H2h2a2 2 0 002-2v-2z"/></svg>
+        </div>
+        <div>
+          <div class="stat-num">∞</div>
+          <div class="stat-desc">Files per run</div>
+          <div class="stat-sub">upload as many as you need</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="step-num">1</div>
+      <span class="card-title">Upload Transcripts</span>
+    </div>
+    <div class="card-body">
+      <div class="drop-zone" id="drop-zone">
+        <input type="file" id="file-input" multiple accept=".vtt,.docx,.txt,.doc,.md"/>
+        <div class="drop-icon-wrap">
+          <svg viewBox="0 0 24 24"><path d="M12 3L8 8h3v8h2V8h3L12 3zM5 18v2h14v-2H5z"/></svg>
+        </div>
+        <div class="drop-title">Drop files here or click to browse</div>
+        <div class="drop-hint">Supports multiple transcript files at once</div>
+        <div class="fmt-row">
+          <span class="fmt-tag">VTT</span>
+          <span class="fmt-tag">DOCX</span>
+          <span class="fmt-tag">TXT</span>
+          <span class="fmt-tag">DOC</span>
+          <span class="fmt-tag">MD</span>
+        </div>
+      </div>
+      <div id="file-list"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="step-num">2</div>
+      <span class="card-title">Generate Document</span>
+    </div>
+    <div class="card-body">
+
+      <button class="run-btn" id="run-btn" disabled>
+        <svg id="run-icon" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z"/></svg>
+        <span id="run-label">Generate Customer Profile</span>
+      </button>
+
+      <div id="progress-area">
+        <div class="prog-card">
+          <div class="prog-row">
+            <div>
+              <div class="prog-label" id="bar-label">Processing…</div>
+              <div class="prog-step" id="prog-step">Initializing pipeline</div>
+            </div>
+            <div class="prog-pct" id="bar-pct">0%</div>
+          </div>
+          <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+        </div>
+      </div>
+
+      <div id="result-box">
+        <div class="result-card">
+          <div class="result-left">
+            <div class="result-icon">
+              <svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div>
+              <div class="result-title">Profile generated successfully!</div>
+              <div class="result-filename" id="result-filename">Customer_Profile.docx</div>
+            </div>
+          </div>
+          <button class="dl-btn" id="dl-btn">
+            <svg viewBox="0 0 20 20"><path d="M10 14l-5-5h3V4h4v5h3l-5 5zm-5 2v2h10v-2H5z"/></svg>
+            Download .docx
+          </button>
+        </div>
+      </div>
+
+      <div id="error-box"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="step-num" style="background:var(--teal);">WS</div>
+      <span class="card-title">All 15 SAP Workstreams Covered</span>
+    </div>
+    <div class="card-body">
+      <div class="ws-grid">
+        <div class="ws-tile"><div class="ws-num">01</div><div class="ws-label">Business Overview</div></div>
+        <div class="ws-tile"><div class="ws-num">02</div><div class="ws-label">Idea to Market</div></div>
+        <div class="ws-tile"><div class="ws-num">03</div><div class="ws-label">Source to Pay</div></div>
+        <div class="ws-tile"><div class="ws-num">04</div><div class="ws-label">Plan to Produce</div></div>
+        <div class="ws-tile"><div class="ws-num">05</div><div class="ws-label">Detect to Correct</div></div>
+        <div class="ws-tile"><div class="ws-num">06</div><div class="ws-label">Forecast to Fulfill</div></div>
+        <div class="ws-tile"><div class="ws-num">07</div><div class="ws-label">Warehouse &amp; EWM</div></div>
+        <div class="ws-tile"><div class="ws-num">08</div><div class="ws-label">Lead to Cash</div></div>
+        <div class="ws-tile"><div class="ws-num">09</div><div class="ws-label">Logistics &amp; TM</div></div>
+        <div class="ws-tile"><div class="ws-num">10</div><div class="ws-label">Request to Service</div></div>
+        <div class="ws-tile"><div class="ws-num">11</div><div class="ws-label">Record to Report</div></div>
+        <div class="ws-tile"><div class="ws-num">12</div><div class="ws-label">Acquire to Dispose</div></div>
+        <div class="ws-tile"><div class="ws-num">13</div><div class="ws-label">ESG Processes</div></div>
+        <div class="ws-tile"><div class="ws-num">14</div><div class="ws-label">Hire to Retire</div></div>
+        <div class="ws-tile"><div class="ws-num">15</div><div class="ws-label">Data &amp; Analytics</div></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <span class="footer-copy">© DiscoveryAI · NTT DATA Business Solutions</span>
+  <div class="footer-chips">
+    <span class="chip chip-blue">Azure GPT-4o</span>
+    <span class="chip chip-teal">FastAPI</span>
+    <span class="chip chip-amber">docxtpl</span>
+  </div>
+</footer>
+
+<script>
+  const dropZone  = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+  const fileList  = document.getElementById('file-list');
+  const runBtn    = document.getElementById('run-btn');
+  const runLabel  = document.getElementById('run-label');
+  const runIcon   = document.getElementById('run-icon');
+  const progArea  = document.getElementById('progress-area');
+  const barFill   = document.getElementById('bar-fill');
+  const barLabel  = document.getElementById('bar-label');
+  const barPct    = document.getElementById('bar-pct');
+  const progStep  = document.getElementById('prog-step');
+  const errorBox  = document.getElementById('error-box');
+  const resultBox = document.getElementById('result-box');
+  const resultFN  = document.getElementById('result-filename');
+  const dlBtn     = document.getElementById('dl-btn');
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  let files      = [];
+  let rFilename  = 'Customer_Profile.docx';
+  let running    = false;
+  let activeJobId = null;   // current background job ID
+  let pollTimer  = null;    // setInterval handle for polling
+
+  // ── Drag & drop / file input ───────────────────────────────────────────────
+  dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', ()  => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    addFiles([...e.dataTransfer.files]);
+  });
+  fileInput.addEventListener('change', () => { addFiles([...fileInput.files]); fileInput.value = ''; });
+
+  function addFiles(nf) {
+    for (const f of nf)
+      if (!files.find(x => x.name === f.name && x.size === f.size)) files.push(f);
+    render();
+  }
+  window.removeFile = i => { files.splice(i, 1); render(); };
+
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  function extClass(n) {
+    const e = (n.split('.').pop() || '').toLowerCase();
+    return { vtt:'ext-vtt', docx:'ext-docx', doc:'ext-docx', txt:'ext-txt', md:'ext-txt' }[e] || 'ext-other';
+  }
+  function extLabel(n) { return (n.split('.').pop() || '').toUpperCase().slice(0,4); }
+  function fmtSize(b) {
+    if (b < 1024) return b + ' B';
+    if (b < 1048576) return (b/1024).toFixed(1) + ' KB';
+    return (b/1048576).toFixed(1) + ' MB';
+  }
+  function setBar(pct) {
+    barFill.style.width = pct + '%';
+    barPct.textContent  = Math.round(pct) + '%';
+  }
+  function showError(msg) {
+    errorBox.textContent   = '⚠  ' + msg;
+    errorBox.style.display = 'block';
+    progArea.style.display = 'none';
+  }
+  function stopPolling() {
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+  function resetUI() {
+    running    = false;
+    activeJobId = null;
+    runBtn.disabled        = files.length === 0;
+    runLabel.textContent   = 'Generate Customer Profile';
+    runIcon.style.opacity  = '1';
+  }
+
+  // ── Render file list ───────────────────────────────────────────────────────
+  function render() {
+    fileList.innerHTML = '';
+    files.forEach((f, i) => {
+      const d = document.createElement('div');
+      d.className = 'file-row';
+      d.innerHTML = `
+        <div class="file-ext ${extClass(f.name)}">${extLabel(f.name)}</div>
+        <div class="file-info">
+          <div class="file-name">${f.name}</div>
+          <div class="file-size">${fmtSize(f.size)}</div>
+        </div>
+        <button class="rm-btn" onclick="removeFile(${i})" title="Remove">
+          <svg viewBox="0 0 14 14" fill="none">
+            <line x1="2" y1="2" x2="12" y2="12" stroke-width="1.8"/>
+            <line x1="12" y1="2" x2="2" y2="12" stroke-width="1.8"/>
+          </svg>
+        </button>`;
+      fileList.appendChild(d);
+    });
+    runBtn.disabled = files.length === 0 || running;
+    if (!running) {
+      errorBox.style.display = 'none';
+      resultBox.style.display = 'none';
+      progArea.style.display  = 'none';
+      barFill.style.width     = '0%';
+      barPct.textContent      = '0%';
+    }
+  }
+
+  // ── Main: click Generate ───────────────────────────────────────────────────
+  runBtn.addEventListener('click', async () => {
+    if (!files.length || running) return;
+
+    running = true;
+    runBtn.disabled        = true;
+    runLabel.textContent   = 'Uploading…';
+    runIcon.style.opacity  = '0.5';
+    errorBox.style.display = 'none';
+    resultBox.style.display = 'none';
+    progArea.style.display  = 'block';
+    barLabel.textContent    = 'Uploading files…';
+    progStep.textContent    = 'Sending files to server';
+    setBar(2);
+
+    // Step 1 — upload files, get job_id back instantly
+    const fd = new FormData();
+    files.forEach(f => fd.append('files', f));
+
+    let jobId;
+    try {
+      const resp = await fetch('/process', { method: 'POST', body: fd });
+      if (!resp.ok) {
+        const detail = await resp.text();
+        showError('Upload failed: ' + detail);
+        resetUI();
+        return;
+      }
+      const data = await resp.json();
+      jobId = data.job_id;
+    } catch (err) {
+      showError('Upload error: ' + err.message);
+      resetUI();
+      return;
+    }
+
+    // Upload done — server acknowledged
+    activeJobId          = jobId;
+    runLabel.textContent = 'Processing…';
+    barLabel.textContent = 'Processing in background…';
+    progStep.textContent = 'Job started — checking progress…';
+    setBar(5);
+
+    // Step 2 — poll /status/{job_id} every 3 seconds
+    // No SSE stream = no connection timeout risk at all.
+    // The server does all the work; we just check in periodically.
+    stopPolling();
+    pollTimer = setInterval(() => pollStatus(jobId), 3000);
+
+    // Poll once immediately so UI updates fast
+    await pollStatus(jobId);
+  });
+
+  // ── Polling ────────────────────────────────────────────────────────────────
+  async function pollStatus(jobId) {
+    // Safety: if a new job was started, ignore stale polls from old job
+    if (activeJobId !== jobId) { stopPolling(); return; }
+
+    let data;
+    try {
+      const resp = await fetch(`/status/${jobId}`);
+      if (!resp.ok) {
+        // 404 = job expired or unknown; treat as error
+        stopPolling();
+        showError(`Status check failed (HTTP ${resp.status}). Please try again.`);
+        resetUI();
+        return;
+      }
+      data = await resp.json();
+    } catch (err) {
+      // Network blip — don't stop polling, just skip this tick and try again
+      console.warn('Poll network error (will retry):', err.message);
+      return;
+    }
+
+    // Update progress bar
+    if (data.pct != null) setBar(data.pct);
+    if (data.step) {
+      barLabel.textContent = data.step;
+      progStep.textContent = data.step;
+    }
+
+    if (data.status === 'done') {
+      // ── Success ──────────────────────────────────────────────────────────
+      stopPolling();
+      setBar(100);
+      barLabel.textContent = 'Complete!';
+      progStep.textContent = 'Document is ready for download';
+
+      rFilename              = data.filename || 'Customer_Profile.docx';
+      resultFN.textContent   = rFilename;
+      resultBox.style.display = 'block';
+
+      resetUI();
+
+    } else if (data.status === 'error') {
+      // ── Error ─────────────────────────────────────────────────────────────
+      stopPolling();
+      showError(data.error || 'Unknown error occurred.');
+      resetUI();
+    }
+    // 'queued' or 'running' → keep polling
+  }
+
+  // ── Download button ────────────────────────────────────────────────────────
+  // Instead of holding a large base64 string in memory,
+  // we fetch the DOCX directly from /download/{job_id} on click.
+  dlBtn.addEventListener('click', async () => {
+    if (!activeJobId && !rFilename) return;
+
+    // Find the most recent completed job id from the last run
+    const jobId = dlBtn.dataset.jobId;
+    if (!jobId) return;
+
+    try {
+      const resp = await fetch(`/download/${jobId}`);
+      if (!resp.ok) { alert('Download failed. Please regenerate.'); return; }
+      const blob = await resp.blob();
+      const a    = document.createElement('a');
+      a.href     = URL.createObjectURL(blob);
+      a.download = rFilename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (err) {
+      alert('Download error: ' + err.message);
+    }
+  });
+
+  // Store the job_id on the button when a job completes so dlBtn can use it
+  // We do this inside pollStatus → done branch above, but need a hook.
+  // Patch: override the done handler to also set dlBtn.dataset.jobId
+  const _origPoll = pollStatus;
+  // (done inline — see the 'done' branch in pollStatus which sets rFilename;
+  //  we'll track the completed jobId via a module-level variable)
+  let completedJobId = null;
+
+  // Re-wire: patch done branch to record completedJobId and set on button
+  const __poll = pollStatus;
+  pollStatus = async function(jobId) {
+    if (activeJobId !== jobId) { stopPolling(); return; }
+    let data;
+    try {
+      const resp = await fetch(`/status/${jobId}`);
+      if (!resp.ok) {
+        stopPolling();
+        showError(`Status check failed (HTTP ${resp.status}). Please try again.`);
+        resetUI();
+        return;
+      }
+      data = await resp.json();
+    } catch (err) {
+      console.warn('Poll network error (will retry):', err.message);
+      return;
+    }
+
+    if (data.pct != null) setBar(data.pct);
+    if (data.step) {
+      barLabel.textContent = data.step;
+      progStep.textContent = data.step;
+    }
+
+    if (data.status === 'done') {
+      stopPolling();
+      setBar(100);
+      barLabel.textContent    = 'Complete!';
+      progStep.textContent    = 'Document is ready for download';
+      rFilename               = data.filename || 'Customer_Profile.docx';
+      resultFN.textContent    = rFilename;
+      resultBox.style.display = 'block';
+      // Store job_id so download button can fetch the file
+      completedJobId          = jobId;
+      dlBtn.dataset.jobId     = jobId;
+      resetUI();
+
+    } else if (data.status === 'error') {
+      stopPolling();
+      showError(data.error || 'Unknown error occurred.');
+      resetUI();
+    }
+  };
+</script>
+</body>
+</html>
