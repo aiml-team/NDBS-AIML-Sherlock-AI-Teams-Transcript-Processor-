@@ -1,7 +1,0 @@
-INFO:     Will watch for changes in these directories: ['/Users/somalapurinaveen/Desktop/Sherlock AI vtt']
-INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [95027] using WatchFiles
-INFO:     Started server process [95029]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     127.0.0.1:63550 - "GET /health HTTP/1.1" 200 OK
