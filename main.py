@@ -78,13 +78,14 @@ def _new_job() -> str:
     _cleanup_old_jobs()
     job_id = str(uuid.uuid4())
     _JOBS[job_id] = {
-        "status":   "queued",
-        "step":     "Queued — waiting to start…",
-        "pct":      0,
-        "error":    None,
-        "filename": None,
-        "docx_b64": None,
-        "created":  time.time(),
+        "status":     "queued",
+        "step":       "Queued — waiting to start…",
+        "pct":        0,
+        "error":      None,
+        "filename":   None,
+        "docx_b64":   None,
+        "final_data": None,
+        "created":    time.time(),
     }
     return job_id
 
@@ -380,7 +381,8 @@ async def _run_pipeline(job_id: str, file_data: list[tuple[str, bytes]]):
                 step="Document is ready for download!",
                 pct=100,
                 filename=filename,
-                docx_b64=b64)
+                docx_b64=b64,
+                final_data=final_data)
 
         logger.info("Job %s completed → %s", job_id, filename)
 
@@ -471,6 +473,35 @@ async def download(job_id: str):
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@app.get("/json/{job_id}")
+async def get_json(job_id: str):
+    """
+    Returns the extracted and synthesized JSON data for a completed job.
+    Use this to integrate with other apps — merge the returned JSON into
+    master_data.json instead of downloading a DOCX.
+
+    Only available when status == "done".
+
+    Response shape matches TEMPLATE_SCHEMA from tools.py:
+    {
+      "client_name": "...",
+      "document_date": "...",
+      "General_Business_Overview": { "Schedule_of_Events": { "content": "..." }, ... },
+      "Idea_to_Market": { "Current_Processes_Key_Findings": { "content": "..." }, ... },
+      ...
+    }
+    """
+    job = _JOBS.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Job not found.")
+    if job["status"] != "done":
+        raise HTTPException(status_code=400, detail="Job not finished yet.")
+    if not job["final_data"]:
+        raise HTTPException(status_code=500, detail="No JSON data available.")
+
+    return JSONResponse(job["final_data"])
 
 
 @app.get("/health")
