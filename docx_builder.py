@@ -12,8 +12,142 @@ The template already has the exact styling — this module just fills content.
 import io
 import os
 import re
+from copy import deepcopy
 from datetime import datetime
 from docxtpl import DocxTemplate
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+
+
+# ── Internet Research formatting ─────────────────────────────────────────────
+# Mirrors the post-process used by the Sherlock_AI_ForAPI renderer: the
+# Tavily enrichment block embeds "[Internet Research]" + "• Source:" lines
+# into a field's content, which docxtpl renders as one paragraph with soft
+# line breaks. We restyle those lines after render and before save.
+_IR_HEADER_TEXT = "[Internet Research]"
+_IR_RED_HEX = "C00000"
+_IR_GREY_HEX = "808080"
+_IR_SOURCE_SZ = "16"  # half-points → 8 pt
+
+
+def _ir_classify(text):
+    s = (text or "").strip()
+    if s == _IR_HEADER_TEXT:
+        return "header"
+    if s.startswith("• Source:") or s.startswith("Source:"):
+        return "source"
+    return "normal"
+
+
+def _ir_iter_paragraphs(doc):
+    for p in doc.paragraphs:
+        yield p
+    for table in doc.tables:
+        yield from _ir_iter_table_paragraphs(table)
+
+
+def _ir_iter_table_paragraphs(table):
+    for row in table.rows:
+        for cell in row.cells:
+            for p in cell.paragraphs:
+                yield p
+            for nested in cell.tables:
+                yield from _ir_iter_table_paragraphs(nested)
+
+
+def _ir_collect_lines(p_el):
+    lines = []
+    cur_text = ""
+    cur_rpr = None
+    for r in p_el.findall(qn("w:r")):
+        r_rpr = r.find(qn("w:rPr"))
+        for child in list(r):
+            tag = child.tag
+            if tag == qn("w:t"):
+                if cur_rpr is None and r_rpr is not None:
+                    cur_rpr = r_rpr
+                cur_text += (child.text or "")
+            elif tag == qn("w:br"):
+                lines.append((cur_text, cur_rpr))
+                cur_text = ""
+                cur_rpr = None
+            elif tag == qn("w:tab"):
+                cur_text += "\t"
+    lines.append((cur_text, cur_rpr))
+    return lines
+
+
+def _ir_apply_header(rpr):
+    for tag in ("w:i", "w:iCs", "w:color"):
+        for el in rpr.findall(qn(tag)):
+            rpr.remove(el)
+    rpr.append(OxmlElement("w:i"))
+    rpr.append(OxmlElement("w:iCs"))
+    color = OxmlElement("w:color")
+    color.set(qn("w:val"), _IR_RED_HEX)
+    rpr.append(color)
+
+
+def _ir_apply_source(rpr):
+    for tag in ("w:color", "w:sz", "w:szCs"):
+        for el in rpr.findall(qn(tag)):
+            rpr.remove(el)
+    color = OxmlElement("w:color")
+    color.set(qn("w:val"), _IR_GREY_HEX)
+    rpr.append(color)
+    sz = OxmlElement("w:sz")
+    sz.set(qn("w:val"), _IR_SOURCE_SZ)
+    rpr.append(sz)
+    szCs = OxmlElement("w:szCs")
+    szCs.set(qn("w:val"), _IR_SOURCE_SZ)
+    rpr.append(szCs)
+
+
+def _ir_restyle_paragraph(p):
+    p_el = p._element
+    lines = _ir_collect_lines(p_el)
+    if not any(_ir_classify(t) != "normal" for t, _ in lines):
+        return
+
+    for r in list(p_el.findall(qn("w:r"))):
+        p_el.remove(r)
+
+    pPr = p_el.find(qn("w:pPr"))
+    insert_idx = list(p_el).index(pPr) + 1 if pPr is not None else 0
+
+    new_elems = []
+    for i, (text, base_rpr) in enumerate(lines):
+        if i > 0:
+            br_run = OxmlElement("w:r")
+            if base_rpr is not None:
+                br_run.append(deepcopy(base_rpr))
+            br_run.append(OxmlElement("w:br"))
+            new_elems.append(br_run)
+        if not text:
+            continue
+        cls = _ir_classify(text)
+        new_r = OxmlElement("w:r")
+        rpr = deepcopy(base_rpr) if base_rpr is not None else OxmlElement("w:rPr")
+        if cls == "header":
+            _ir_apply_header(rpr)
+        elif cls == "source":
+            _ir_apply_source(rpr)
+        if list(rpr):
+            new_r.append(rpr)
+        t = OxmlElement("w:t")
+        t.text = text
+        t.set(qn("xml:space"), "preserve")
+        new_r.append(t)
+        new_elems.append(new_r)
+
+    for el in new_elems:
+        p_el.insert(insert_idx, el)
+        insert_idx += 1
+
+
+def _restyle_internet_research(doc):
+    for p in _ir_iter_paragraphs(doc):
+        _ir_restyle_paragraph(p)
 
 
 def _safe_content(value) -> str:
@@ -140,6 +274,13 @@ def build_docx(data: dict, template_path: str | None = None,
     # ({{ prospect_name }}) and is filled by tpl.render(context) above, so we
     # only need to fix up the date field's cached value and the author line.
     _patch_cover(tpl, doc_date)
+
+    # Restyle [Internet Research] header (italic + red) and • Source: bullets
+    # (8 pt + grey) inserted by the Tavily enrichment.
+    try:
+        _restyle_internet_research(tpl.docx)
+    except Exception as restyle_err:
+        print(f"⚠ Internet Research restyle skipped: {restyle_err}")
 
     buf = io.BytesIO()
     tpl.save(buf)
